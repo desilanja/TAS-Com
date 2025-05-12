@@ -1,5 +1,5 @@
 # TAS-Com: Topological and Attributive Similarity-based Community detection
-# This code is releated to the paper titled: Community Detection based on Topological and Attributive Similarity using Graph Convolutional Neural Networks
+# This code is releated to the paper titled: Advancing Community Detection with Graph Convolutional Neural Networks: Bridging Topological and Attributive Cohesion
 
 ## Requirements
 - First install torch from https://pytorch.org/get-started/locally/
