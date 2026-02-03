@@ -392,26 +392,26 @@ def community_to_membership(individual):
     return part_membership
 
 
-# def merge_leiden_communities(G, partition, GTCommunities):
-#     best_modularity = nx.algorithms.community.modularity(G, GTCommunities)
-#     best_partition = GTCommunities
-#     best_leiden_subgraph = partition
-#
-#     for com1, com2 in combinations(partition, 2):
-#         new_partition = [com for com in GTCommunities if com != com1 and com != com2]
-#         new_leiden_subgraph = [com for com in partition if com != com1 and com != com2]
-#         merged_community = com1 + com2
-#         new_leiden_subgraph.append(merged_community)
-#         new_partition.append(merged_community)
-#
-#
-#         modularity = nx.algorithms.community.modularity(G, new_partition)
-#         if modularity > best_modularity:
-#             best_modularity = modularity
-#             best_partition = new_partition
-#             best_leiden_subgraph = new_leiden_subgraph
-#
-#     return best_partition, best_leiden_subgraph
+def merge_leiden_communities(G, partition, GTCommunities):
+    best_modularity = nx.algorithms.community.modularity(G, GTCommunities)
+    best_partition = GTCommunities
+    best_leiden_subgraph = partition
+
+    for com1, com2 in combinations(partition, 2):
+        new_partition = [com for com in GTCommunities if com != com1 and com != com2]
+        new_leiden_subgraph = [com for com in partition if com != com1 and com != com2]
+        merged_community = com1 + com2
+        new_leiden_subgraph.append(merged_community)
+        new_partition.append(merged_community)
+
+
+        modularity = nx.algorithms.community.modularity(G, new_partition)
+        if modularity > best_modularity:
+            best_modularity = modularity
+            best_partition = new_partition
+            best_leiden_subgraph = new_leiden_subgraph
+
+    return best_partition, best_leiden_subgraph
 
 def flatten_list_of_lists(list_of_lists):
     return [item for sublist in list_of_lists for item in sublist]
@@ -505,38 +505,38 @@ def obtain_Leiden_communities(Graph):
     return list(leiden_communities.values())
 
 
-# def preprocess_groundtruth_Leiden(G, GTcommunities):
-#     # Sort the dictionary by keys
-#     sorted_GTcommunities = dict(sorted(GTcommunities.items()))
-#     leiden_communities = []
-#     leiden_GTcommunities = {}
-#     for key in sorted_GTcommunities:
-#         com_subgraph = G.subgraph(list(sorted_GTcommunities[key]))
-#         leiden_subgraph_com = cdalg.leiden(com_subgraph).communities
-#         if key == 0:
-#             new_GTCommunities = list(sorted_GTcommunities.values())
-#         com_to_remove = list(sorted_GTcommunities[key])
-#         # new_GTCommunities = new_GTCommunities.remove(com_to_remove)
-#         new_GTCommunities = [lst for lst in new_GTCommunities if lst != com_to_remove]
-#         for com in leiden_subgraph_com:
-#             new_GTCommunities.append(com)
-#         length_leiden_subgraph_com = len(leiden_subgraph_com)
-#         if len(leiden_subgraph_com) > 10:
-#             count = 0
-#             c = 0
-#             previous_no_com = length_leiden_subgraph_com
-#             while len(leiden_subgraph_com) > 40:
-#                 new_GTCommunities, leiden_subgraph_com = merge_leiden_communities(G, leiden_subgraph_com, new_GTCommunities)
-#                 if len(leiden_subgraph_com) != previous_no_com:
-#                     previous_no_com = len(leiden_subgraph_com)
-#                 else:
-#                     c += 1
-#                 if c == 5:
-#                     break
-#                 print(f'count: {count}')
-#                 count += 1
-#     new_GTCommunities = community_to_membership(new_GTCommunities)
-#     return torch.tensor(new_GTCommunities)
+def preprocess_groundtruth_Leiden(G, GTcommunities):
+    # Sort the dictionary by keys
+    sorted_GTcommunities = dict(sorted(GTcommunities.items()))
+    leiden_communities = []
+    leiden_GTcommunities = {}
+    for key in sorted_GTcommunities:
+        com_subgraph = G.subgraph(list(sorted_GTcommunities[key]))
+        leiden_subgraph_com = cdalg.leiden(com_subgraph).communities
+        if key == 0:
+            new_GTCommunities = list(sorted_GTcommunities.values())
+        com_to_remove = list(sorted_GTcommunities[key])
+        # new_GTCommunities = new_GTCommunities.remove(com_to_remove)
+        new_GTCommunities = [lst for lst in new_GTCommunities if lst != com_to_remove]
+        for com in leiden_subgraph_com:
+            new_GTCommunities.append(com)
+        length_leiden_subgraph_com = len(leiden_subgraph_com)
+        if len(leiden_subgraph_com) > 10:
+            count = 0
+            c = 0
+            previous_no_com = length_leiden_subgraph_com
+            while len(leiden_subgraph_com) > 40:
+                new_GTCommunities, leiden_subgraph_com = merge_leiden_communities(G, leiden_subgraph_com, new_GTCommunities)
+                if len(leiden_subgraph_com) != previous_no_com:
+                    previous_no_com = len(leiden_subgraph_com)
+                else:
+                    c += 1
+                if c == 5:
+                    break
+                print(f'count: {count}')
+                count += 1
+    new_GTCommunities = community_to_membership(new_GTCommunities)
+    return torch.tensor(new_GTCommunities)
 
 # def preprocess_groundtruth_Leiden_local_Q(G, GTcommunities): # GT communities are refined using Leiden and merge based on the local modularity optimization
 #     # Sort the dictionary by keys
@@ -758,9 +758,9 @@ if __name__ == '__main__':
     # oh_labels = F.one_hot(labels, num_classes=num_classes)  # Represents as a matrix (n * k)
 
     labels_original = data.y.flatten()
-    # labels_modified = preprocess_groundtruth_Leiden(Graph, membership_to_communities(labels_original.tolist()))
+    labels_modified = preprocess_groundtruth_Leiden(Graph, membership_to_communities(labels_original.tolist()))
     # labels_modified = preprocess_groundtruth_Leiden_local_Q(Graph, membership_to_communities(labels_original.tolist()))
-    labels_modified = preprocess_groundtruth_connectedComponents(Graph, labels_original.tolist())
+    # labels_modified = preprocess_groundtruth_connectedComponents(Graph, labels_original.tolist())
     oh_labels = F.one_hot(labels_modified, num_classes=max(labels_modified) + 1)
     # oh_labels = F.one_hot(labels_original, num_classes=max(labels_original) + 1)
 
