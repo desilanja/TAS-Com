@@ -5,7 +5,7 @@ import igraph
 import numpy as np
 import random
 
-import pandas
+# import pandas
 import scipy as sp
 
 import torch
@@ -13,10 +13,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch_geometric.transforms as T
 import torch.optim.lr_scheduler as lr_scheduler
-from community import community_louvain
+# from community import community_louvain
+import utils_
 from networkx import connected_components
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.preprocessing import normalize
+# from sklearn.feature_extraction.text import TfidfTransformer
+# from sklearn.preprocessing import normalize
 
 from torch_geometric.datasets import Planetoid
 from torch_geometric.datasets import Amazon
@@ -31,7 +32,6 @@ from sklearn.cluster import Birch, SpectralClustering, KMeans
 import networkx as nx
 
 import argparse
-import utils
 import os
 import leidenalg as la
 from torch_geometric.utils import from_networkx
@@ -496,7 +496,7 @@ def obtain_Leiden_communities(Graph):
                                              )
         com_leiden_label = np.array(com_leiden_label.membership)
         # NMI_leiden = utils.compute_nmi(com_leiden_label, data.y.squeeze().cpu().numpy())
-        Q_leiden = utils.compute_fast_modularity(com_leiden_label, num_nodes, num_edges, torch_sparse_adj, degree,
+        Q_leiden = utils_.compute_fast_modularity(com_leiden_label, num_nodes, num_edges, torch_sparse_adj, degree,
                                                  device)
         if Q_leiden >= Q_leiden_max:
             Q_leiden_max = Q_leiden
@@ -775,7 +775,7 @@ if __name__ == '__main__':
     NMI_leiden_max = 0
     for lei in range(30):
         com_leiden_label = la.find_partition(igraph.Graph.from_networkx(Graph), la.ModularityVertexPartition, initial_membership=labels_original).membership
-        NMI_leiden = utils.compute_nmi(com_leiden_label, data.y.squeeze().cpu().numpy())
+        NMI_leiden = utils_.compute_nmi(com_leiden_label, data.y.squeeze().cpu().numpy())
         # Q_leiden = utils.compute_fast_modularity(com_leiden_label, num_nodes, num_edges, torch_sparse_adj,
         #                                          degree, device)
         if NMI_leiden >= NMI_leiden_max:
@@ -909,21 +909,21 @@ if __name__ == '__main__':
         print(
             f"Cluster {cluster} is {'connected' if is_connected else 'not connected'} in the original network.")
 
-    FQ = utils.compute_fast_modularity(clusters, num_nodes, num_edges, torch_sparse_adj, degree, device) # Compute modularity of the obtained community structure
+    FQ = utils_.compute_fast_modularity(clusters, num_nodes, num_edges, torch_sparse_adj, degree, device) # Compute modularity of the obtained community structure
     print('------------Testing Performance--------------------')
     print('No of clusters: ', max(clusters) + 1)
     print('Modularity:', FQ)
 
-    NMI_original = utils.compute_nmi(clusters, data.y.squeeze().cpu().numpy()) # Compute NMI
+    NMI_original = utils_.compute_nmi(clusters, data.y.squeeze().cpu().numpy()) # Compute NMI
     # NMI_processed_label = utils.compute_nmi(clusters, labels_modified)
     print('NMI_original:', NMI_original)
     # print('NMI_processed_label:', NMI_processed_label)
 
-    conductance = utils.compute_conductance(clusters, Graph) # Compute conductance
+    conductance = utils_.compute_conductance(clusters, Graph) # Compute conductance
     avg_conductance = sum(conductance) / len(conductance)
     print('Conductance: ', avg_conductance * 100)
 
-    f1_score = utils.sample_f1_score(test_data, clusters, num_nodes) # Compute f1_score
+    f1_score = utils_.sample_f1_score(test_data, clusters, num_nodes) # Compute f1_score
     print('Sample_F1_score:', f1_score)
     print('-------------------------------------------------------')
 
